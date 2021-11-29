@@ -1,0 +1,36 @@
+GET http://localhost:5000/api/v1/todos/init
+Content-Type: application/json
+
+###
+
+
+GET http://localhost:5000/api/v1/todos/
+Content-Type: application/json
+
+###
+
+GET http://localhost:5000/api/v1/todos/1
+Content-Type: application/json
+
+###
+
+POST http://localhost:5000/api/v1/todos/add_t/2
+Content-Type: multipart/form-data
+###
+
+POST http://localhost:5000/api/v1/todos/add_p
+Content-Type: multipart/form-data
+
+
+###
+
+POST http://localhost:5000/api/v1/todos/
+Content-Type: application/json
+
+{
+  "title": "Poćwicz"
+}
+
+###
+
+DELETE http://localhost:5000/api/v1/todos/3
