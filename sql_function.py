@@ -26,3 +26,4 @@ sql_tasks = '''INSERT INTO tasks(projekt_id, nazwa, opis, status, start_date, en
 
 sql_projects = '''INSERT INTO projects(nazwa, start_date, end_date)
                  VALUES(?,?,?)'''
+
