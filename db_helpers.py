@@ -1,64 +1,50 @@
 from models import todos
 import sql_function
-import sql_data
 
 
-def todos_list_api_v1_init():
-    db_file = "database.db"
-    conn = todos.create_connection(db_file)
-    if conn is not None:
-        todos.execute_sql(conn, sql_function.create_projects_sql)
-        todos.execute_sql(conn, sql_function.create_tasks_sql)
-        conn.close()
-        return "Utworzono bazę danych" 
 
-def todos_list_api_v1():
-    db_file = "database.db"
-    conn = todos.create_connection(db_file)
-    cur = conn.cursor()
-    cur.execute(f"SELECT * FROM projects")
-    rows_p = cur.fetchall()
-    cur.execute(f"SELECT * FROM tasks")
-    rows_t = cur.fetchall()
-    conn.close()
-    return f"Projects:\n{rows_p}\nTasks:\n{rows_t}"
+class TodosDatabase:
+    def __init__(self, db_file):
+        self.db_file = db_file
+    
+    def create_connection(self):
+        return todos.create_connection(self.db_file)
 
-def todos_add_p():
-    db_file = "database.db"
-    conn = todos.create_connection(db_file)
-    rows_p_no=todos.add_projekt(conn, sql_data.projekt, sql_function.sql_projects)
-    conn.commit()
-    print_projects=todos.select_all(conn, "projects")
-    conn.close()
-    return f"{print_projects}\n{rows_p_no}"
+    def initial(self):
+        with self.create_connection() as conn:
+            todos.execute_sql(conn, sql_function.create_projects_sql)
+            todos.execute_sql(conn, sql_function.create_tasks_sql)
 
-def todos_add_t(pr_id):
-    db_file = "database.db"
-    conn = todos.create_connection(db_file)
-    print_projects=todos.select_all(conn, "projects")
-    rows_p_no=len(print_projects)
-    if pr_id<=rows_p_no:
-        todos.add_zadanie(conn, sql_data.funct_zadanie(pr_id), sql_function.sql_tasks)
-        conn.commit()
-        print_tasks=todos.select_all(conn, "tasks")
-        conn.close()
-        return f"{print_tasks}"
-    else:
-        conn.close()
-        return "Nie ma takiego projektu"
+    def list(self):
+        with self.create_connection() as conn:
+            cur = conn.cursor()
+            cur.execute(f"SELECT * FROM projects")
+            rows_p = cur.fetchall()
+            cur.execute(f"SELECT * FROM tasks")
+            rows_t = cur.fetchall()
+        return rows_p, rows_t
 
-def update_todo(todo_id):
-    db_file = "database.db"
-    conn = todos.create_connection(db_file)
-    todos.update(conn, "tasks", todo_id, status="ended")
-    conn.close()
-    return f"Zaktualizowano task: {todo_id}"
+    def add_project(self, name, start_date, end_date):
+        with self.create_connection() as conn:
+            todos.add_projekt(conn, name, start_date, end_date)
+            conn.commit()
+ 
+    def add_task(self, project_id, name, description, status, start_date, end_date):
+        with self.create_connection() as conn:
+            rows_p_no=len(todos.select_all(conn, "projects"))    
+            if project_id<=rows_p_no:    
+                todos.add_task(conn, project_id, name, description, status, start_date, end_date)
+                conn.commit()
 
-def delete_todo(todo_id):
+    def update(self, table, table_id, column, value):
+        with self.create_connection() as conn:
+            todos.update(conn, table, table_id, column, value)
 
-    db_file = "database.db"
-    conn = todos.create_connection(db_file)
-    todos.delete_where(conn, "tasks", todo_id)
-    conn.commit()
-    conn.close()
-    return f"Usunięto task: {todo_id}"
+    def delete(self, table, table_id):
+        with self.create_connection() as conn:
+            todos.delete_where(conn, table, table_id)
+            conn.commit()
+
+
+
+todos_database = TodosDatabase("database.db")

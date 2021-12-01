@@ -6,6 +6,6 @@ POST http://localhost:5000/api/v1/todos/add_t/2
 ###
 POST http://localhost:5000/api/v1/todos/add_p
 ###
-PUT  http://localhost:5000/api/v1/todos/1
+PUT  http://localhost:5000/api/v1/todos/7
 ###
-DELETE http://localhost:5000/api/v1/todos/3
+DELETE http://localhost:5000/api/v1/todos/4

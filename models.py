@@ -1,5 +1,6 @@
 import sqlite3
 from sqlite3 import Error
+import sql_function
 
 
 class Todos:
@@ -19,17 +20,18 @@ class Todos:
         except Error as e:
             print(e)
 
-    def add_projekt(self, conn, projekt, sql):
+    def add_projekt(self, conn, name, start_date, end_date):
+        projekt = (name, start_date, end_date)
         cur = conn.cursor()
-        cur.execute(sql, projekt)
+        cur.execute(sql_function.sql_projects, projekt)
         conn.commit()
-        return cur.lastrowid
 
-    def add_zadanie(self, conn, zadanie, sql):
+    def add_task(self, conn, project_id, name, description, status, start_date, end_date):
+        
+        task = (project_id, name, description, status, start_date, end_date)
         cur = conn.cursor()
-        cur.execute(sql, zadanie)
+        cur.execute(sql_function.sql_tasks, task)
         conn.commit()
-        return cur.lastrowid
 
     def select_all(self, conn, table):
         cur = conn.cursor()
@@ -37,10 +39,9 @@ class Todos:
         rows = cur.fetchall()
         return rows
 
-    def update(self, conn, table, id, **kwargs):
-        parameters = [f"{k} = ?" for k in kwargs]
-        parameters = ", ".join(parameters)
-        values = tuple(v for v in kwargs.values())
+    def update(self, conn, table, id, parameter, value):
+        parameters=parameter+" = ?"
+        values = tuple([value])
         values += (id, )
 
         sql_update = f''' UPDATE {table}
